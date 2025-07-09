@@ -1,0 +1,38 @@
+# text_analysis.py
+
+import spacy
+from collections import Counter
+import string
+
+# Load English NLP model
+nlp = spacy.load("en_core_web_sm")
+
+# Common stopwords and punctuation to ignore
+EXCLUDE_TOKENS = set(string.punctuation)
+
+def extract_keywords_and_topics(text):
+    # Process the input text
+    doc = nlp(text.lower())
+
+    # Extract keywords: nouns, verbs, and named entities
+    keywords = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop and token.lemma_ not in EXCLUDE_TOKENS]
+    keyword_freq = Counter(keywords)
+
+    # Simple topic estimation using frequency
+    common_keywords = keyword_freq.most_common(5)
+
+    print("\n🔍 Top Keywords:")
+    for word, freq in common_keywords:
+        print(f"• {word} ({freq})")
+
+    # Entity Recognition (optional use for mapping names/places)
+    print("\n📌 Named Entities:")
+    for ent in doc.ents:
+        print(f"• {ent.text} ({ent.label_})")
+
+    return [kw[0] for kw in common_keywords]
+
+# Run for test
+if __name__ == "__main__":
+    sample_input = input("Enter the transcribed speech or message: ")
+    extract_keywords_and_topics(sample_input)
